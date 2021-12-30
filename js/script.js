@@ -8,12 +8,13 @@ const Player = (character, playerNum) => {
 
 const gameBoard = (() => {
     let board = ["", "", "", "", "", "", "", "", ""]
+
+    const getBoard = () => board;
+
     const updateBoard = () => {
         for(let i = 0; i < tiles.length; i++){
             board[i] = tiles[i].textContent
-            
         }
-        
     }
 
     const checkHorz = () => {
@@ -46,12 +47,14 @@ const gameBoard = (() => {
         return false
     }
 
+
+
     const clearBoard = () => {
         board = ["", "", "", "", "", "", "", "", ""]
     }
 
     
-    return { updateBoard, checkHorz, checkVert, checkDiag, clearBoard }
+    return { getBoard, updateBoard, checkHorz, checkVert, checkDiag, clearBoard }
 })();
 
 const x = Player("x", "1")
@@ -72,7 +75,7 @@ const game = (() => {
         if(e.target.textContent == ""){
             e.target.textContent = currentPlayer.getCharacter()
             gameBoard.updateBoard()
-            if(checkWinner()) stopGame()
+            if(!checkWinner()) checkTie()
             changePlayer()
         } 
     }
@@ -81,18 +84,27 @@ const game = (() => {
         
         if(gameBoard.checkHorz() || gameBoard.checkVert() || gameBoard.checkDiag()){
             winnerText.textContent = `Player ${currentPlayer.getCharacter()} wins!`
+            stopGame()
             return true
         }
         return false
+    }
+
+    const checkTie = () => {
+        let board = gameBoard.getBoard()
+        if(!board.some(v => v == "")){
+            winnerText.textContent = "Tie!"
+            stopGame()
+        }
     }
 
     const resetBoard = () => {
         gameBoard.clearBoard()
         tiles.forEach(tile => tile.textContent = "")
         tiles.forEach(tile => tile.addEventListener("click", chooseTile))
-        xTurn = true
-        currentPlayer = x
         winnerText.textContent = ""
+        xTurn = true;
+        currentPlayer = x
     }
 
     const stopGame = () => {
